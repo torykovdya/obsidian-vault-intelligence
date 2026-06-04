@@ -8,6 +8,10 @@ export-vault.py — Obsidian Vault Exporter для Vault Intelligence анали
     python3 export-vault.py ~/ObsidianVault --days 30 > last-month.txt
     python3 export-vault.py ~/ObsidianVault --stats
 
+Windows:
+    python export-vault.py "C:\\Users\\Name\\ObsidianVault" > vault-export.txt
+    python export-vault.py "%USERPROFILE%\\ObsidianVault" > vault-export.txt
+
 Затем скопируйте содержимое vault-export.txt в Claude.
 """
 
@@ -80,7 +84,8 @@ def should_include(file_path: Path, args, vault_root: Path) -> bool:
 
 def export_vault(vault_path: str, args) -> str:
     """Собирает содержимое vault в один текст."""
-    vault = Path(vault_path).expanduser()
+    # Поддержка Windows-путей и переменных окружения
+    vault = Path(os.path.expandvars(vault_path)).expanduser().resolve()
     
     if not vault.exists():
         print(f"Ошибка: папка не найдена: {vault}", file=sys.stderr)
@@ -148,7 +153,7 @@ Modified: {mtime.strftime('%Y-%m-%d')}
 
 def show_stats(vault_path: str, args):
     """Показывает статистику vault."""
-    vault = Path(vault_path).expanduser()
+    vault = Path(os.path.expandvars(vault_path)).expanduser().resolve()
     md_files = list(vault.rglob("*.md"))
     
     # Статистика по папкам
